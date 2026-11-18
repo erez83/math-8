@@ -4,6 +4,8 @@ import { VitePWA } from 'vite-plugin-pwa';
 import pkg from './package.json' with { type: 'json' };
 
 export default defineConfig({
+  // Relative paths, so the app works at any address (e.g. user.github.io/math-8/).
+  base: './',
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
   },
