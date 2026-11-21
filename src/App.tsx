@@ -11,6 +11,8 @@ import { Practice } from './screens/Practice';
 import { Quiz } from './screens/Quiz';
 import { Settings } from './screens/Settings';
 import { Abilities } from './screens/Abilities';
+import { ExamSetup } from './screens/ExamSetup';
+import { Review } from './screens/Review';
 
 const VERSION = __APP_VERSION__;
 
@@ -24,7 +26,11 @@ function Router() {
     case 'practice':
       return <Practice key={`${a}/${b}`} unitId={a} subtopicId={b} />;
     case 'quiz':
-      return <Quiz key={a} unitId={a} />;
+      return <Quiz key={a} unitIds={[a]} />;
+    case 'exam':
+      return a ? <Quiz key={`${a}/${b}`} unitIds={a.split(',')} count={Number(b) || 10} /> : <ExamSetup />;
+    case 'review':
+      return <Review />;
     case 'settings':
       return <Settings />;
     case 'abilities':

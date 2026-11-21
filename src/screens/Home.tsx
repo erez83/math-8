@@ -1,6 +1,6 @@
 import { AVAILABLE_UNITS, findSubtopic, UNITS } from '../content/units';
 import { compareVersions } from '../content/whatsNew';
-import { computeStreak } from '../lib/db';
+import { computeStreak, dayKey } from '../lib/db';
 import { subtopicMastery, tierOf, unitMastery } from '../lib/mastery';
 import { go } from '../lib/router';
 import { useData } from '../lib/store';
@@ -30,6 +30,7 @@ export function Home() {
   const fresh = allSubs.find(({ s }) => !data.bySubtopic.get(s.id)?.length);
   const rec = weak ?? fresh;
   const last = data.lastSubtopic ? findSubtopic(data.lastSubtopic) : undefined;
+  const reviewDone = data.reviewDoneDay === dayKey(Date.now());
   const overall = allSubs.length
     ? Math.round(allSubs.reduce((sum, { s }) => sum + subtopicMastery(data.bySubtopic.get(s.id) ?? []), 0) / allSubs.length)
     : 0;
@@ -88,18 +89,40 @@ export function Home() {
         </button>
       )}
 
-      {rec && (
-        <button className="row" style={{ marginTop: 8 }} onClick={() => go(weak ? `/practice/${rec.unit.id}/${rec.s.id}` : `/learn/${rec.unit.id}/${rec.s.id}`)}>
+      {started.length === 0 && rec ? (
+        <button className="row daily" style={{ marginTop: 8 }} onClick={() => go(`/learn/${rec.unit.id}/${rec.s.id}`)}>
           <span className="num">★</span>
           <span className="body">
-            <span className="title">{weak ? 'כדאי לחזק היום' : 'הצעד הבא'}</span>
+            <span className="title">הצעד הראשון</span>
             <div className="muted small">
               {rec.s.title} · {rec.unit.title}
             </div>
           </span>
           <span className="chev">‹</span>
         </button>
+      ) : (
+        <button className={`row daily ${reviewDone ? 'done' : ''}`} style={{ marginTop: 8 }} onClick={() => go('/review')}>
+          <span className="num">{reviewDone ? '✓' : '🔁'}</span>
+          <span className="body">
+            <span className="title">{reviewDone ? 'החזרה היומית הושלמה' : 'חזרה יומית'}</span>
+            <div className="muted small">
+              {reviewDone
+                ? 'כל הכבוד! אפשר לעשות עוד סבב אם בא לך.'
+                : `8 תרגילים שנבחרו בשבילך${weak ? `, כולל ${weak.s.title}` : ''}`}
+            </div>
+          </span>
+          <span className="chev">‹</span>
+        </button>
       )}
+
+      <button className="row" style={{ marginTop: 8 }} onClick={() => go('/exam')}>
+        <span className="num">📝</span>
+        <span className="body">
+          <span className="title">מבחן לפני מבחן</span>
+          <div className="muted small">מבחן שמערבב נושאים, בלי טיימר</div>
+        </span>
+        <span className="chev">‹</span>
+      </button>
 
       <div className="section-title">יחידות הלימוד</div>
       <div className="list">

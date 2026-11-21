@@ -220,6 +220,22 @@ button { font: inherit; color: inherit; }
 .rtable td { background: var(--surface-2); border-radius: 8px; padding: 6px 14px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; min-width: 48px; }
 .rtable td.hl { background: var(--accent-soft); color: var(--accent); }
 
+.checks { display: flex; flex-direction: column; gap: 4px; }
+.check { display: flex; align-items: center; gap: 10px; padding: 8px 6px; border-radius: 10px; cursor: pointer; }
+.check:active { background: var(--surface-2); }
+.check input { position: absolute; opacity: 0; pointer-events: none; }
+.check-box { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border); display: grid; place-items: center; font-size: 0.8rem; font-weight: 700; color: var(--accent-text); flex-shrink: 0; }
+.check.on .check-box { background: var(--accent); border-color: var(--accent); }
+.review-tag { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 1px 8px; border-radius: 99px; background: var(--surface-2); color: var(--text-2); }
+.review-tag.weak { background: var(--accent-soft); color: var(--accent); }
+.review-tag.stale { background: var(--gold-soft); color: var(--warn); }
+.review-tag.new { background: var(--ok-soft); color: var(--ok); }
+.daily { background: var(--accent); color: var(--accent-text); border: 0; }
+.daily .muted { color: inherit; opacity: 0.8; }
+.daily .num { background: rgba(255, 255, 255, 0.18); color: inherit; }
+.daily.done { background: var(--ok-soft); color: var(--ok); }
+.daily.done .num { background: var(--surface); }
+
 /* ---------- banners & modal ---------- */
 .banner {
   position: fixed; inset-inline: 12px; bottom: calc(env(safe-area-inset-bottom) + 12px); max-width: 616px; margin: 0 auto;

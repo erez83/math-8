@@ -1,16 +1,15 @@
-import { useEffect, useState } from 'react';
-import type { Exercise, Level } from '../content/types';
+import { useEffect, useMemo, useState } from 'react';
+import type { Exercise } from '../content/types';
 import { getUnit } from '../content/units';
 import { addAttempt, addQuiz } from '../lib/db';
-import { makeRng, randomSeed, shuffle } from '../lib/random';
+import { buildExam, unitOf } from '../lib/exam';
+import { makeRng, randomSeed } from '../lib/random';
 import { back, go } from '../lib/router';
 import { useData } from '../lib/store';
 import { setBusy } from '../lib/update';
 import { formatAnswer, type Verdict } from '../lib/answer';
 import { MathText } from '../components/MathText';
 import { AnswerInput, emptyInput, evaluate, ExercisePrompt, Feedback, Solution, type InputState } from '../components/ExerciseParts';
-
-const LEVELS: Level[] = [1, 1, 1, 2, 2, 2, 2, 3, 3, 3];
 
 interface Item {
   ex: Exercise;
@@ -19,22 +18,18 @@ interface Item {
   almostShown: boolean;
 }
 
-function buildQuiz(unitId: string): Item[] {
-  const unit = getUnit(unitId);
-  const subs = unit?.content?.subtopics ?? [];
-  const rng = makeRng(randomSeed());
-  let order = shuffle(rng, subs);
-  return LEVELS.map((level, i) => {
-    if (i > 0 && i % order.length === 0) order = shuffle(rng, subs);
-    const sub = order[i % order.length];
-    return { ex: sub.generate(level, rng), input: emptyInput, verdict: null, almostShown: false };
-  });
+function build(unitIds: string[], count: number): Item[] {
+  return buildExam(unitIds, count, makeRng(randomSeed())).map((ex) => ({ ex, input: emptyInput, verdict: null, almostShown: false }));
 }
 
-export function Quiz({ unitId }: { unitId: string }) {
-  const unit = getUnit(unitId);
+/** A unit quiz (one unit, 10 questions) or a mixed exam (several units). No timer. */
+export function Quiz({ unitIds, count = 10 }: { unitIds: string[]; count?: number }) {
   const data = useData();
-  const [items, setItems] = useState<Item[]>(() => buildQuiz(unitId));
+  const isUnitQuiz = unitIds.length === 1;
+  const unit = isUnitQuiz ? getUnit(unitIds[0]) : undefined;
+  const title = isUnitQuiz ? `בוחן: ${unit?.title ?? ''}` : 'מבחן מעורב';
+  const exitTo = isUnitQuiz ? `/unit/${unitIds[0]}` : '/exam';
+  const [items, setItems] = useState<Item[]>(() => build(unitIds, count));
   const [cur, setCur] = useState(0);
   const [note, setNote] = useState<Verdict | null>(null);
   const [done, setDone] = useState(false);
@@ -45,7 +40,19 @@ export function Quiz({ unitId }: { unitId: string }) {
     return () => setBusy(false);
   }, [done]);
 
-  if (!unit?.content) return <p>היחידה לא נמצאה.</p>;
+  const byUnit = useMemo(() => {
+    const m = new Map<string, { right: number; total: number }>();
+    for (const it of items) {
+      const u = unitOf(it.ex.subtopicId);
+      const s = m.get(u) ?? { right: 0, total: 0 };
+      s.total++;
+      if (it.verdict?.status === 'correct') s.right++;
+      m.set(u, s);
+    }
+    return m;
+  }, [items]);
+
+  if (items.length === 0) return <p>לא נבחרו יחידות.</p>;
 
   const item = items[cur];
   const answered = items.filter((it) => it.verdict).length;
@@ -80,9 +87,9 @@ export function Quiz({ unitId }: { unitId: string }) {
     const score = final.filter((it) => it.verdict?.status === 'correct').length;
     const ts = Date.now();
     for (const it of final) {
-      await addAttempt({ unitId, subtopicId: it.ex.subtopicId, level: it.ex.level, correct: it.verdict?.status === 'correct', hintsUsed: 0, source: 'quiz', ts });
+      await addAttempt({ unitId: unitOf(it.ex.subtopicId), subtopicId: it.ex.subtopicId, level: it.ex.level, correct: it.verdict?.status === 'correct', hintsUsed: 0, source: 'quiz', ts });
     }
-    await addQuiz({ unitIds: [unitId], score, total: final.length, ts });
+    await addQuiz({ unitIds, score, total: final.length, ts });
     await data.refresh();
     setDone(true);
     window.scrollTo(0, 0);
@@ -90,20 +97,42 @@ export function Quiz({ unitId }: { unitId: string }) {
 
   if (done) {
     const score = items.filter((it) => it.verdict?.status === 'correct').length;
+    const pct = score / items.length;
     return (
       <div>
         <div className="topbar">
-          <button className="icon-btn" onClick={() => go(`/unit/${unitId}`)}>→ ליחידה</button>
-          <h1>תוצאות הבוחן</h1>
+          <button className="icon-btn" onClick={() => go(exitTo)}>→ {isUnitQuiz ? 'ליחידה' : 'למבחנים'}</button>
+          <h1>תוצאות {isUnitQuiz ? 'הבוחן' : 'המבחן'}</h1>
         </div>
         <div className="card" style={{ textAlign: 'center' }}>
           <div className="score-big">
             {score}/{items.length}
           </div>
           <p className="muted" style={{ margin: '6px 0 0' }}>
-            {score === items.length ? 'בוחן מושלם. מרשים!' : score >= 8 ? 'תוצאה מצוינת.' : score >= 6 ? 'יפה. כדאי לעבור על הטעויות למטה.' : 'שווה לחזור על ההסברים ולתרגל עוד קצת. את בדרך.'}
+            {pct === 1 ? 'מושלם. מרשים!' : pct >= 0.8 ? 'תוצאה מצוינת.' : pct >= 0.6 ? 'יפה. כדאי לעבור על הטעויות למטה.' : 'שווה לחזור על ההסברים ולתרגל עוד קצת. את בדרך.'}
           </p>
         </div>
+
+        {!isUnitQuiz && (
+          <div className="card">
+            <h2>לפי נושא</h2>
+            {[...byUnit.entries()].map(([u, s]) => (
+              <button key={u} className="sub-row" style={{ width: '100%' }} onClick={() => go(`/practice/${u}/all`)}>
+                <span className="sub-title">{getUnit(u)?.title}</span>
+                <span className={`sub-bar ${s.right === s.total ? 'good' : s.right / s.total >= 0.5 ? 'way' : 'start'}`}>
+                  <span style={{ width: `${Math.max(4, (100 * s.right) / s.total)}%` }} />
+                </span>
+                <span className="sub-pct">
+                  {s.right}/{s.total}
+                </span>
+              </button>
+            ))}
+            <p className="muted small" style={{ marginBottom: 0 }}>
+              לחיצה על נושא פותחת תרגול בו.
+            </p>
+          </div>
+        )}
+
         <div className="section-title">מעבר על השאלות</div>
         <div className="list">
           {items.map((it, i) => {
@@ -111,7 +140,7 @@ export function Quiz({ unitId }: { unitId: string }) {
             return (
               <div className="card" key={i} style={{ marginBottom: 0 }}>
                 <div className="muted small">
-                  שאלה {i + 1} · {ok ? '✓ נכון' : '✗ לא נכון'}
+                  שאלה {i + 1} · {getUnit(unitOf(it.ex.subtopicId))?.title} · {ok ? '✓ נכון' : '✗ לא נכון'}
                 </div>
                 <ExercisePrompt ex={it.ex} />
                 {!ok && (
@@ -134,19 +163,19 @@ export function Quiz({ unitId }: { unitId: string }) {
           })}
         </div>
         <div className="btn-row" style={{ marginTop: 16 }}>
-          <button className="btn secondary" onClick={() => go(`/practice/${unitId}/all`)}>
-            לתרגול
+          <button className="btn secondary" onClick={() => go(isUnitQuiz ? `/practice/${unitIds[0]}/all` : '/review')}>
+            {isUnitQuiz ? 'לתרגול' : 'לחזרה יומית'}
           </button>
           <button
             className="btn"
             onClick={() => {
-              setItems(buildQuiz(unitId));
+              setItems(build(unitIds, count));
               setCur(0);
               setDone(false);
               setOpen(null);
             }}
           >
-            בוחן חדש
+            {isUnitQuiz ? 'בוחן חדש' : 'מבחן חדש'}
           </button>
         </div>
       </div>
@@ -156,8 +185,8 @@ export function Quiz({ unitId }: { unitId: string }) {
   return (
     <div>
       <div className="topbar">
-        <button className="icon-btn" onClick={() => back(`/unit/${unitId}`)}>→ יציאה</button>
-        <h1>בוחן: {unit.title}</h1>
+        <button className="icon-btn" onClick={() => back(exitTo)}>→ יציאה</button>
+        <h1>{title}</h1>
         <span className="session">
           {answered}/{items.length}
         </span>
@@ -172,6 +201,7 @@ export function Quiz({ unitId }: { unitId: string }) {
       <div className="card" key={cur}>
         <div className="muted small" style={{ marginBottom: 6 }}>
           שאלה {cur + 1} מתוך {items.length}
+          {!isUnitQuiz && ` · ${getUnit(unitOf(item.ex.subtopicId))?.title}`}
           {item.verdict && ' · נענתה (אפשר לשנות)'}
         </div>
         <ExercisePrompt ex={item.ex} />
@@ -191,7 +221,7 @@ export function Quiz({ unitId }: { unitId: string }) {
             if (answered < items.length && !confirm(`ענית על ${answered} מתוך ${items.length} שאלות. לסיים בכל זאת? שאלות שלא נענו ייחשבו כטעות.`)) return;
             finish();
           }}>
-            סיום הבוחן
+            סיום {isUnitQuiz ? 'הבוחן' : 'המבחן'}
           </button>
         </div>
       </div>

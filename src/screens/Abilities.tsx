@@ -222,7 +222,7 @@ export function Abilities() {
               return (
                 <div key={q.id} className="small" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
                   <span>
-                    {unit?.title}
+                    {q.unitIds.length > 1 ? `מבחן מעורב (${q.unitIds.length} נושאים)` : unit?.title}
                     <span className="muted"> · {new Date(q.ts).toLocaleDateString('he-IL')}</span>
                   </span>
                   <strong className="math">

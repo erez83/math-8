@@ -12,16 +12,19 @@ interface Data {
   seenItems: string[];
   lastSubtopic?: string;
   fontScale: number;
+  /** Day key (YYYY-MM-DD) of the last completed daily review. */
+  reviewDoneDay?: string;
   refresh: () => Promise<void>;
   markSeen: (id: string) => Promise<void>;
   setLastSubtopic: (id: string) => Promise<void>;
   setFontScale: (s: number) => Promise<void>;
+  setReviewDone: (day: string) => Promise<void>;
 }
 
 const Ctx = createContext<Data | null>(null);
 
 export function DataProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<Omit<Data, 'refresh' | 'markSeen' | 'setLastSubtopic' | 'setFontScale' | 'bySubtopic'>>({
+  const [state, setState] = useState<Omit<Data, 'refresh' | 'markSeen' | 'setLastSubtopic' | 'setFontScale' | 'bySubtopic' | 'setReviewDone'>>({
     ready: false,
     attempts: [],
     quizzes: [],
@@ -32,7 +35,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   });
 
   const refresh = useCallback(async () => {
-    const [attempts, quizzes, practiceDays, installedVersion, seenItems, lastSubtopic, fontScale] = await Promise.all([
+    const [attempts, quizzes, practiceDays, installedVersion, seenItems, lastSubtopic, fontScale, reviewDoneDay] = await Promise.all([
       getAllAttempts(),
       getAllQuizzes(),
       getMeta<string[]>('practiceDays'),
@@ -40,6 +43,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       getMeta<string[]>('seenItems'),
       getMeta<string>('lastSubtopic'),
       getMeta<number>('fontScale'),
+      getMeta<string>('reviewDoneDay'),
     ]);
     setState({
       ready: true,
@@ -50,6 +54,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       seenItems: seenItems ?? [],
       lastSubtopic,
       fontScale: fontScale ?? 1,
+      reviewDoneDay,
     });
   }, []);
 
@@ -81,9 +86,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setState((s) => ({ ...s, fontScale: v }));
   }, []);
 
+  const setReviewDone = useCallback(async (day: string) => {
+    await setMeta('reviewDoneDay', day);
+    setState((s) => ({ ...s, reviewDoneDay: day }));
+  }, []);
+
   const bySubtopic = useMemo(() => groupBySubtopic(state.attempts), [state.attempts]);
 
-  const value: Data = { ...state, bySubtopic, refresh, markSeen, setLastSubtopic, setFontScale };
+  const value: Data = { ...state, bySubtopic, refresh, markSeen, setLastSubtopic, setFontScale, setReviewDone };
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
