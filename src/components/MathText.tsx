@@ -27,14 +27,16 @@ function renderInner(s: string): ReactNode {
 
 export function MathSpan({ src }: { src: string }) {
   const parts: ReactNode[] = [];
-  const re = /(\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)/g;
+  // Numerator: a number, a letter term like "x" / "2x", or a bracket like "(x + 3)".
+  const re = /(\([^()]+\)|\d*[a-z]|\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)/g;
   let last = 0;
   let k = 0;
   for (let mt = re.exec(src); mt; mt = re.exec(src)) {
     if (mt.index > last) parts.push(src.slice(last, mt.index));
+    const num = mt[1].startsWith('(') ? mt[1].slice(1, -1) : mt[1];
     parts.push(
       <span className="frac" key={k++}>
-        <span>{mt[1]}</span>
+        <span>{num}</span>
         <span>{mt[2]}</span>
       </span>,
     );

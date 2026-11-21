@@ -58,7 +58,7 @@ export interface ExplanationVariant {
   title: string;
   paragraphs: string[];
   /** Interactive visual shown with this explanation. */
-  interactive?: 'smoothie' | 'zoom' | 'boxes';
+  interactive?: 'smoothie' | 'zoom' | 'boxes' | 'percentGrid' | 'balance' | 'areaScale' | 'ratioTable';
   /** Worked example, step by step. */
   example?: { question: string; steps: string[] };
 }

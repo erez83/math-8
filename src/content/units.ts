@@ -2,6 +2,11 @@ import type { Subtopic, Unit } from './types';
 import { ratioUnit } from './units/ratio';
 import { ratioEquivUnit } from './units/ratioEquiv';
 import { ratioDivideUnit } from './units/ratioDivide';
+import { proportionUnit } from './units/proportion';
+import { scaleUnit } from './units/scale';
+import { equationsUnit } from './units/equations';
+import { percentUnit } from './units/percent';
+import { estimationUnit } from './units/estimation';
 
 /**
  * All 13 units in the book's order. Unit and subtopic IDs are permanent:
@@ -13,11 +18,11 @@ export const UNITS: Unit[] = [
   { id: 'ratio', number: 2, title: 'יחס', bookRef: "חלק א', יחס", addedIn: '0.1.0', content: ratioUnit },
   { id: 'ratio-equiv', number: 3, title: 'יחסים שווים: צמצום והרחבה', bookRef: "חלק א', יחס", addedIn: '0.1.0', content: ratioEquivUnit },
   { id: 'ratio-divide', number: 4, title: 'חלוקה ביחס', bookRef: "חלק א', חלוקה ביחס", addedIn: '0.1.0', content: ratioDivideUnit },
-  { id: 'proportion', number: 5, title: 'פרופורציה', bookRef: "חלק א' + חלק ב', יחס ישר" },
-  { id: 'scale', number: 6, title: 'קנה מידה', bookRef: "חלק א', קנה מידה" },
-  { id: 'equations', number: 7, title: 'משוואות בנעלם אחד', bookRef: "חלק א', משוואות" },
-  { id: 'percent', number: 8, title: 'אחוזים', bookRef: "חלק א', אחוזים" },
-  { id: 'estimation', number: 9, title: 'אומדן', bookRef: "חלק א', אחוזים: אומדנים" },
+  { id: 'proportion', number: 5, title: 'פרופורציה', bookRef: "חלק א' + חלק ב', יחס ישר", addedIn: '0.3.0', content: proportionUnit },
+  { id: 'scale', number: 6, title: 'קנה מידה', bookRef: "חלק א', קנה מידה", addedIn: '0.3.0', content: scaleUnit },
+  { id: 'equations', number: 7, title: 'משוואות בנעלם אחד', bookRef: "חלק א', משוואות", addedIn: '0.3.0', content: equationsUnit },
+  { id: 'percent', number: 8, title: 'אחוזים', bookRef: "חלק א', אחוזים", addedIn: '0.3.0', content: percentUnit },
+  { id: 'estimation', number: 9, title: 'אומדן', bookRef: "חלק א', אחוזים: אומדנים", addedIn: '0.3.0', content: estimationUnit },
   { id: 'statistics', number: 10, title: 'סטטיסטיקה', bookRef: "חלק ב', סטטיסטיקה" },
   { id: 'pythagoras', number: 11, title: 'משפט פיתגורס', bookRef: "חלק ב', משפט פיתגורס" },
   { id: 'area', number: 12, title: 'שטחים', bookRef: 'חזרה' },

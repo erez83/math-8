@@ -215,6 +215,11 @@ button { font: inherit; color: inherit; }
 .control .stepper button { border: 0; background: var(--surface); width: 36px; height: 36px; border-radius: 8px; cursor: pointer; font-size: 1.1rem; }
 .control .stepper span { min-width: 36px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
 
+.rtable { margin: 0 auto; border-collapse: separate; border-spacing: 6px; }
+.rtable th { font-weight: 600; font-size: 0.9rem; text-align: start; padding-inline-end: 8px; }
+.rtable td { background: var(--surface-2); border-radius: 8px; padding: 6px 14px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; min-width: 48px; }
+.rtable td.hl { background: var(--accent-soft); color: var(--accent); }
+
 /* ---------- banners & modal ---------- */
 .banner {
   position: fixed; inset-inline: 12px; bottom: calc(env(safe-area-inset-bottom) + 12px); max-width: 616px; margin: 0 auto;

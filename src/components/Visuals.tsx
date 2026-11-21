@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { VisualSpec } from '../content/types';
+import type { ExplanationVariant, VisualSpec } from '../content/types';
 import { gcd } from '../lib/random';
 
 const COLOR = { a: 'var(--c-a)', b: 'var(--c-b)', c: 'var(--c-c)' } as const;
@@ -168,8 +168,150 @@ export function BoxesVisual() {
   );
 }
 
-export function InteractiveVisual({ kind }: { kind: 'smoothie' | 'zoom' | 'boxes' }) {
-  if (kind === 'smoothie') return <SmoothieVisual />;
-  if (kind === 'zoom') return <ZoomVisual />;
-  return <BoxesVisual />;
+/** Percent = "out of 100": a 10×10 grid, tap +/- to color squares. */
+export function PercentGridVisual() {
+  const [p, setP] = useState(25);
+  const [n, setN] = useState(80);
+  const value = (p * n) / 100;
+  return (
+    <div className="card visual">
+      <svg viewBox="0 0 200 200" style={{ maxWidth: 220, margin: '0 auto' }} role="img" aria-label={`${p} מתוך 100`}>
+        {Array.from({ length: 100 }, (_, i) => (
+          <rect key={i} x={(i % 10) * 20 + 1} y={Math.floor(i / 10) * 20 + 1} width={18} height={18} rx={3} fill={i < p ? 'var(--c-b)' : 'var(--surface-2)'} />
+        ))}
+      </svg>
+      <div className="control">
+        <span>
+          <span className="muted small">אחוז </span>
+          <span className="stepper">
+            <button onClick={() => setP(Math.max(0, p - 5))} aria-label="פחות">−</button>
+            <span>{p}%</span>
+            <button onClick={() => setP(Math.min(100, p + 5))} aria-label="יותר">+</button>
+          </span>
+        </span>
+        <span>
+          <span className="muted small">מתוך </span>
+          <span className="stepper">
+            <button onClick={() => setN(Math.max(20, n - 20))} aria-label="פחות">−</button>
+            <span style={{ minWidth: 44 }}>{n}</span>
+            <button onClick={() => setN(Math.min(400, n + 20))} aria-label="יותר">+</button>
+          </span>
+        </span>
+      </div>
+      <p className="small" style={{ textAlign: 'center', margin: '10px 0 0' }}>
+        {p}% = {p} משבצות מתוך 100.
+        <br />
+        מ-<span className="math">{n}</span>: כל משבצת שווה <span className="math">{n} ÷ 100 = {n / 100}</span>, אז{' '}
+        <span className="math">{p}% = {Number.isInteger(value) ? value : value.toFixed(1)}</span>
+      </p>
+    </div>
+  );
+}
+
+/** Equation as a balance: every step is done to BOTH sides. Example: 3x + 5 = 20. */
+export function BalanceVisual() {
+  const steps = [
+    { left: '3x + 5', right: '20', note: 'המאזניים מאוזנים: שני הצדדים שווים.' },
+    { left: '3x', right: '15', note: 'הורדנו 5 משני הצדדים. עדיין מאוזן.' },
+    { left: 'x', right: '5', note: 'חילקנו את שני הצדדים ב-3. מצאנו: x = 5.' },
+  ];
+  const [i, setI] = useState(0);
+  const s = steps[i];
+  return (
+    <div className="card visual">
+      <svg viewBox="0 0 300 150" style={{ maxWidth: 360, margin: '0 auto' }} direction="ltr">
+        <polygon points="150,140 135,150 165,150" fill="var(--text-2)" />
+        <rect x="147" y="60" width="6" height="82" fill="var(--text-2)" />
+        <rect x="30" y="56" width="240" height="6" rx="3" fill="var(--text-2)" />
+        <line x1="60" y1="62" x2="60" y2="90" stroke="var(--text-2)" strokeWidth="2" />
+        <line x1="240" y1="62" x2="240" y2="90" stroke="var(--text-2)" strokeWidth="2" />
+        <rect x="10" y="90" width="100" height="36" rx="8" fill="var(--c-b)" />
+        <rect x="190" y="90" width="100" height="36" rx="8" fill="var(--c-a)" />
+        <text x="60" y="114" textAnchor="middle" fontSize="18" fontWeight="700" fill="#fff">{s.left}</text>
+        <text x="240" y="114" textAnchor="middle" fontSize="18" fontWeight="700" fill="#fff">{s.right}</text>
+      </svg>
+      <p className="small" style={{ textAlign: 'center', margin: '6px 0' }}>
+        <span className="math">{s.left} = {s.right}</span> · {s.note}
+      </p>
+      <div className="control">
+        <button className="btn ghost" disabled={i === 0} onClick={() => setI(i - 1)}>→ אחורה</button>
+        <button className="btn secondary" disabled={i === steps.length - 1} onClick={() => setI(i + 1)}>
+          {i === 0 ? 'מורידים 5 משני הצדדים' : 'מחלקים את שני הצדדים ב-3'} ←
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** Scale and area: lengths ×k make the area ×k². */
+export function AreaScaleVisual() {
+  const [k, setK] = useState(2);
+  const cell = 120 / (3 * k);
+  return (
+    <div className="card visual">
+      <svg viewBox="0 0 260 130" style={{ maxWidth: 360, margin: '0 auto' }} direction="ltr">
+        <rect x="10" y={130 - 40 - 5} width="40" height="40" fill="var(--c-a)" rx="3" />
+        <text x="30" y="80" textAnchor="middle" fontSize="11" fill="var(--text-2)">מקורי</text>
+        {Array.from({ length: k * k }, (_, i) => (
+          <rect key={i} x={110 + (i % k) * cell * 3 + 1} y={5 + Math.floor(i / k) * cell * 3 + 1} width={cell * 3 - 2} height={cell * 3 - 2} rx="2" fill="var(--c-b)" opacity={0.85} />
+        ))}
+      </svg>
+      <div className="control">
+        <Stepper label="הגדלה פי" value={k} min={1} max={4} onChange={setK} />
+      </div>
+      <p className="small" style={{ textAlign: 'center', margin: '8px 0 0' }}>
+        כל צלע גדלה פי <span className="math">{k}</span>, אבל נכנסים <span className="math">{k} × {k} = {k * k}</span> ריבועים מקוריים. השטח גדל פי{' '}
+        <span className="math">{k * k}</span>.
+      </p>
+    </div>
+  );
+}
+
+/** Ratio table: both rows are multiplied by the same number. */
+export function RatioTableVisual() {
+  const [k, setK] = useState(3);
+  const base = [4, 10];
+  return (
+    <div className="card visual">
+      <table className="rtable">
+        <tbody>
+          <tr>
+            <th>מחברות</th>
+            <td>{base[0]}</td>
+            <td className="hl">{base[0] * k}</td>
+          </tr>
+          <tr>
+            <th>מחיר (ש"ח)</th>
+            <td>{base[1]}</td>
+            <td className="hl">{base[1] * k}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div className="control">
+        <Stepper label="כפול" value={k} min={1} max={8} onChange={setK} />
+      </div>
+      <p className="small" style={{ textAlign: 'center', margin: '8px 0 0' }}>
+        <span className="math">{base[0]}:{base[1]} = {base[0] * k}:{base[1] * k}</span>. שתי השורות גדלות פי אותו מספר, וזו פרופורציה.
+      </p>
+    </div>
+  );
+}
+
+export function InteractiveVisual({ kind }: { kind: NonNullable<ExplanationVariant['interactive']> }) {
+  switch (kind) {
+    case 'smoothie':
+      return <SmoothieVisual />;
+    case 'zoom':
+      return <ZoomVisual />;
+    case 'boxes':
+      return <BoxesVisual />;
+    case 'percentGrid':
+      return <PercentGridVisual />;
+    case 'balance':
+      return <BalanceVisual />;
+    case 'areaScale':
+      return <AreaScaleVisual />;
+    case 'ratioTable':
+      return <RatioTableVisual />;
+  }
 }

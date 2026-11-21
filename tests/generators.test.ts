@@ -47,7 +47,9 @@ for (const unit of AVAILABLE_UNITS) {
             const a = ex.answer;
             if (a.kind === 'number') {
               expect(Number.isFinite(a.value), ctx).toBe(true);
-              expect(a.value, ctx).toBeGreaterThan(0);
+              // Answers must be "nice": whole numbers or at most 2 decimal places.
+              // (Fractions like 5/12 are fine when the answer has a fraction display.)
+              if (!a.display) expect(Math.abs(a.value * 100 - Math.round(a.value * 100)) < 1e-6, ctx).toBe(true);
             }
             if (a.kind === 'ratio') {
               for (const p of a.parts) expect(Number.isInteger(p) && p > 0, ctx).toBe(true);
