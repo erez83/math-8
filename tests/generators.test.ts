@@ -37,7 +37,9 @@ for (const unit of AVAILABLE_UNITS) {
             const ctx = `${sub.id} L${level} seed ${seed}: ${ex.prompt}`;
             expect(ex.subtopicId, ctx).toBe(sub.id);
             expect(ex.level, ctx).toBe(level);
-            expect(ex.hints, ctx).toHaveLength(2);
+            expect(ex.hints, ctx).toHaveLength(3);
+            // Hints guide the thinking; they must never contain the final answer as a full result.
+            for (const h of ex.hints) expect(h.trim().length, ctx).toBeGreaterThan(10);
             expect(ex.solution.length, ctx).toBeGreaterThan(0);
             const text = [ex.prompt, ...ex.hints, ...ex.solution].join(' ');
             expect(text, ctx).not.toMatch(/NaN|undefined|Infinity/);

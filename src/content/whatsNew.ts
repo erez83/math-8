@@ -7,6 +7,14 @@ export interface WhatsNewEntry {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '0.2.0',
+    date: '21.11.2026',
+    items: [
+      'רמזים חדשים שמלמדים איך לחשוב: מה שואלים? איך חושבים? והצעד הראשון',
+      'מסך "היכולות שלי": מפת שליטה בכל הנושאים, גרף שבועי, שיפורים והישגים',
+    ],
+  },
+  {
     version: '0.1.0',
     date: '18.11.2026',
     items: [

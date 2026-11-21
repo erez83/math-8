@@ -198,6 +198,7 @@ button { font: inherit; color: inherit; }
 .feedback > strong { display: block; }
 
 .hint { background: var(--gold-soft); border-radius: 12px; padding: 10px 14px; margin: 8px 0; }
+.hint-title { font-weight: 700; font-size: 0.85rem; color: var(--warn); margin-bottom: 2px; }
 .solution { background: var(--surface-2); border-radius: 12px; padding: 12px 14px; margin: 8px 0; }
 .solution ol { margin: 6px 0 0; padding-inline-start: 22px; }
 .levelbar { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
@@ -235,6 +236,38 @@ button { font: inherit; color: inherit; }
 .quiz-dots button.cur { border: 2px solid var(--accent); }
 .quiz-dots button.right { background: var(--ok-soft); border-color: var(--ok); }
 .quiz-dots button.wrong { background: var(--bad-soft); border-color: var(--bad); }
+
+/* ---------- abilities ---------- */
+.overall { display: flex; align-items: center; gap: 14px; }
+.overall-stats { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+.mini-stats { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 0.85rem; color: var(--text-2); }
+.mini-stats b { color: var(--text); font-size: 1rem; }
+.improved { background: var(--ok-soft); border-color: transparent; }
+.week { display: flex; gap: 6px; align-items: flex-end; height: 130px; direction: rtl; }
+.week-col { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
+.week-num { font-size: 0.75rem; color: var(--text-2); min-height: 1.1em; }
+.week-bar { width: 100%; max-width: 30px; background: var(--surface-2); border-radius: 6px; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; min-height: 2px; }
+.week-right { background: var(--ok); width: 100%; }
+.week-label { font-size: 0.75rem; color: var(--text-2); margin-top: 4px; }
+.two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0 12px; }
+.link-row { display: flex; justify-content: space-between; gap: 8px; border: 0; background: transparent; padding: 4px 0; cursor: pointer; text-align: start; }
+.link-row .link { color: var(--accent); font-weight: 600; white-space: nowrap; }
+.num-badge { width: 28px; height: 28px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; }
+.sub-map { display: flex; flex-direction: column; gap: 2px; margin-top: 10px; }
+.sub-row { display: grid; grid-template-columns: 1fr 34% 38px; align-items: center; gap: 10px; border: 0; background: transparent; padding: 6px 2px; cursor: pointer; text-align: start; border-radius: 8px; font-size: 0.9rem; }
+.sub-row:active { background: var(--surface-2); }
+.sub-bar { height: 8px; background: var(--surface-2); border-radius: 99px; overflow: hidden; display: block; }
+.sub-bar > span { display: block; height: 100%; border-radius: 99px; }
+.sub-bar.start > span { background: var(--text-2); }
+.sub-bar.way > span { background: var(--accent); }
+.sub-bar.good > span { background: var(--ok); }
+.sub-bar.expert > span { background: var(--gold); }
+.sub-pct { font-size: 0.8rem; color: var(--text-2); text-align: end; font-variant-numeric: tabular-nums; }
+.badges { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
+.badge { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 8px; text-align: center; opacity: 0.45; filter: grayscale(1); }
+.badge.on { opacity: 1; filter: none; border-color: var(--gold); background: var(--gold-soft); }
+.badge-icon { font-size: 1.6rem; line-height: 1.2; }
+.badge-title { font-weight: 700; font-size: 0.85rem; }
 
 .score-big { font-size: 2.6rem; font-weight: 800; text-align: center; line-height: 1.1; }
 input[type='file'] { display: none; }

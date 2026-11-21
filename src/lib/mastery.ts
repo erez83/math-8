@@ -9,7 +9,7 @@ const LEVEL_WEIGHT = { 1: 0.7, 2: 0.9, 3: 1 } as const;
 
 function attemptScore(a: Attempt): number {
   if (!a.correct) return 0;
-  const hintFactor = a.hintsUsed === 0 ? 1 : a.hintsUsed === 1 ? 0.7 : 0.4;
+  const hintFactor = [1, 0.8, 0.6, 0.4][Math.min(a.hintsUsed, 3)];
   return LEVEL_WEIGHT[a.level] * hintFactor;
 }
 

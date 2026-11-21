@@ -10,6 +10,7 @@ import { Learn } from './screens/Learn';
 import { Practice } from './screens/Practice';
 import { Quiz } from './screens/Quiz';
 import { Settings } from './screens/Settings';
+import { Abilities } from './screens/Abilities';
 
 const VERSION = __APP_VERSION__;
 
@@ -26,6 +27,8 @@ function Router() {
       return <Quiz key={a} unitId={a} />;
     case 'settings':
       return <Settings />;
+    case 'abilities':
+      return <Abilities />;
     default:
       return <Home />;
   }

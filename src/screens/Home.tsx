@@ -30,6 +30,9 @@ export function Home() {
   const fresh = allSubs.find(({ s }) => !data.bySubtopic.get(s.id)?.length);
   const rec = weak ?? fresh;
   const last = data.lastSubtopic ? findSubtopic(data.lastSubtopic) : undefined;
+  const overall = allSubs.length
+    ? Math.round(allSubs.reduce((sum, { s }) => sum + subtopicMastery(data.bySubtopic.get(s.id) ?? []), 0) / allSubs.length)
+    : 0;
 
   return (
     <div>
@@ -59,6 +62,20 @@ export function Home() {
           <div className="l">תרגילים היום</div>
         </div>
       </div>
+
+      <button className="row abilities-row" style={{ marginTop: 12 }} onClick={() => go('/abilities')}>
+        <span className="num">📊</span>
+        <span className="body">
+          <span className="title">היכולות שלי</span>
+          <div className="muted small">
+            שליטה כללית {overall}% · {tierOf(overall).name}
+          </div>
+          <div className="progress">
+            <div style={{ width: `${overall}%` }} />
+          </div>
+        </span>
+        <span className="chev">‹</span>
+      </button>
 
       {last && (
         <button className="row" style={{ marginTop: 12 }} onClick={() => go(`/practice/${last.unit.id}/${last.subtopic.id}`)}>

@@ -13,6 +13,10 @@ import { AnswerInput, emptyInput, evaluate, ExercisePrompt, Feedback, Solution, 
 
 type LevelChoice = 'auto' | Level;
 
+/** The three hints walk through how to think, from understanding to a first step. */
+const HINT_TITLES = ['מה שואלים?', 'איך חושבים?', 'הצעד הראשון'];
+const HINT_ICONS = ['🔍', '💡', '👣'];
+
 export function Practice({ unitId, subtopicId }: { unitId: string; subtopicId: string }) {
   const unit = getUnit(unitId);
   const data = useData();
@@ -127,7 +131,9 @@ export function Practice({ unitId, subtopicId }: { unitId: string; subtopicId: s
 
           {Array.from({ length: hints }, (_, i) => (
             <div className="hint" key={i}>
-              <strong>רמז {i + 1}: </strong>
+              <div className="hint-title">
+                {HINT_ICONS[i]} {HINT_TITLES[i]}
+              </div>
               <MathText text={ex.hints[i]} />
             </div>
           ))}
@@ -138,9 +144,10 @@ export function Practice({ unitId, subtopicId }: { unitId: string; subtopicId: s
           <AnswerInput ex={ex} input={input} setInput={setInput} onSubmit={submit} locked={finished} reveal={finished} />
 
           <div className="btn-row" style={{ marginTop: 12 }}>
-            {!finished && hints < 2 && (
+            {!finished && hints < ex.hints.length && (
               <button className="btn secondary" onClick={() => setHints(hints + 1)}>
-                רמז {hints + 1}
+                {hints === 0 ? 'רמז: ' : 'רמז הבא: '}
+                {HINT_TITLES[hints]}
               </button>
             )}
             {!finished && (

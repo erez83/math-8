@@ -37,7 +37,13 @@ export interface Exercise {
   /** Text. Wrap math in {{...}} so it renders left-to-right. */
   prompt: string;
   answer: AnswerSpec;
-  hints: [string, string];
+  /**
+   * Thinking hints, shown one at a time:
+   *   [0] what is the question really asking,
+   *   [1] how to think about it (the strategy, no numbers worked out),
+   *   [2] the first concrete step (still not the answer).
+   */
+  hints: [string, string, string];
   /** Full solution, step by step. */
   solution: string[];
   mistakes: CommonMistake[];
