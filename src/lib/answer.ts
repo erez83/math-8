@@ -60,7 +60,8 @@ function isSimplest(parts: number[]): boolean {
 export function checkAnswer(user: UserAnswer, spec: AnswerSpec, mistakes: CommonMistake[] = []): Verdict {
   let correct = false;
   if (spec.kind === 'number' && user.kind === 'number') {
-    correct = Math.abs(user.value - spec.value) < 1e-6 * Math.max(1, Math.abs(spec.value));
+    const tol = spec.tolerance ?? 1e-6 * Math.max(1, Math.abs(spec.value));
+    correct = Math.abs(user.value - spec.value) <= tol + 1e-9;
   } else if (spec.kind === 'choice' && user.kind === 'choice') {
     correct = user.index === spec.correct;
   } else if (spec.kind === 'ratio' && user.kind === 'ratio') {

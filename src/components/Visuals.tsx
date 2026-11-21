@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { ExplanationVariant, VisualSpec } from '../content/types';
 import { gcd } from '../lib/random';
+import { BoxLayers, LineExplorer, MeanTowers, ParallelogramCut, PythagorasSquares, Visual2 } from './Visuals2';
 
 const COLOR = { a: 'var(--c-a)', b: 'var(--c-b)', c: 'var(--c-c)' } as const;
 const BOX_COLORS = ['var(--c-a)', 'var(--c-b)', 'var(--c-c)'];
@@ -27,7 +28,12 @@ export function ExerciseVisual({ spec }: { spec: VisualSpec }) {
       </div>
     );
   }
-  return <BarModel parts={spec.parts} labels={spec.labels} />;
+  if (spec.type === 'barModel') return <BarModel parts={spec.parts} labels={spec.labels} />;
+  return (
+    <div className="visual">
+      <Visual2 spec={spec} />
+    </div>
+  );
 }
 
 /** A row of equal boxes per person: the "box method". */
@@ -313,5 +319,15 @@ export function InteractiveVisual({ kind }: { kind: NonNullable<ExplanationVaria
       return <AreaScaleVisual />;
     case 'ratioTable':
       return <RatioTableVisual />;
+    case 'lineExplorer':
+      return <LineExplorer />;
+    case 'meanTowers':
+      return <MeanTowers />;
+    case 'pythagorasSquares':
+      return <PythagorasSquares />;
+    case 'parallelogramCut':
+      return <ParallelogramCut />;
+    case 'boxLayers':
+      return <BoxLayers />;
   }
 }

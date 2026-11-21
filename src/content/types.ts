@@ -4,7 +4,15 @@ export type Level = 1 | 2 | 3;
 
 /** What the student must enter. */
 export type AnswerSpec =
-  | { kind: 'number'; value: number; unit?: string; /** e.g. "3/8" when the answer is a fraction */ display?: string }
+  | {
+      kind: 'number';
+      value: number;
+      unit?: string;
+      /** e.g. "3/8" when the answer is a fraction */
+      display?: string;
+      /** Accepted distance from `value`, for rounded answers (e.g. 0.05 for "round to tenths"). */
+      tolerance?: number;
+    }
   | {
       kind: 'ratio';
       parts: number[];
@@ -29,7 +37,20 @@ export interface CommonMistake {
 
 export type VisualSpec =
   | { type: 'bars'; groups: { label: string; count: number; color: 'a' | 'b' | 'c' }[] }
-  | { type: 'barModel'; parts: number[]; labels: string[]; total?: number; perBox?: number };
+  | { type: 'barModel'; parts: number[]; labels: string[]; total?: number; perBox?: number }
+  /** Coordinate grid with straight lines y = mx + b and labeled points. */
+  | { type: 'graph'; lines?: { m: number; b: number; label?: string }[]; points?: { x: number; y: number; label?: string }[]; range?: number }
+  /** Table: first cell of each row is its header. */
+  | { type: 'table'; rows: (string | number)[][] }
+  | { type: 'barChart'; labels: string[]; values: number[]; step: number; title?: string }
+  | { type: 'pie'; labels: string[]; percents: number[] }
+  /** Right triangle: legs a (bottom) and b (side), hypotenuse c. Use "?" for the unknown. */
+  | { type: 'triangle'; a: string; b: string; c: string }
+  | { type: 'shape'; kind: ShapeKind; labels: Record<string, string> }
+  | { type: 'box'; length: string; width: string; height: string; diagonal?: 'face' | 'main' }
+  | { type: 'cylinder'; r: string; h: string };
+
+export type ShapeKind = 'rect' | 'triangle' | 'parallelogram' | 'trapezoid' | 'rhombus' | 'circle' | 'lshape' | 'frame';
 
 export interface Exercise {
   subtopicId: string;
@@ -58,7 +79,19 @@ export interface ExplanationVariant {
   title: string;
   paragraphs: string[];
   /** Interactive visual shown with this explanation. */
-  interactive?: 'smoothie' | 'zoom' | 'boxes' | 'percentGrid' | 'balance' | 'areaScale' | 'ratioTable';
+  interactive?:
+    | 'smoothie'
+    | 'zoom'
+    | 'boxes'
+    | 'percentGrid'
+    | 'balance'
+    | 'areaScale'
+    | 'ratioTable'
+    | 'lineExplorer'
+    | 'meanTowers'
+    | 'pythagorasSquares'
+    | 'parallelogramCut'
+    | 'boxLayers';
   /** Worked example, step by step. */
   example?: { question: string; steps: string[] };
 }

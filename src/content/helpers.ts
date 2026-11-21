@@ -41,6 +41,21 @@ export function ratioMistake(parts: number[], feedback: string): CommonMistake {
   return mk;
 }
 
+export const MINUS = '−';
+
+/** Signed number with a real minus sign: −3 */
+export const sgn = (n: number) => (n < 0 ? `${MINUS}${-n}` : String(n));
+
+/** "y = 2x + 3", "y = −x", "y = 4", "y = 0.5x − 1" */
+export function lineText(mm: number, b: number): string {
+  const mx = mm === 0 ? '' : mm === 1 ? 'x' : mm === -1 ? `${MINUS}x` : `${sgn(mm)}x`;
+  if (!mx) return `y = ${sgn(b)}`;
+  return b === 0 ? `y = ${mx}` : `y = ${mx} ${b > 0 ? '+' : MINUS} ${Math.abs(b)}`;
+}
+
+/** "(2, −3)" */
+export const pt = (x: number, y: number) => `(${sgn(x)}, ${sgn(y)})`;
+
 export const PAIRS: [string, string][] = [
   ['נועה', 'איתי'],
   ['מאיה', 'עומר'],
